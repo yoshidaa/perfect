@@ -61,6 +61,6 @@ if $0 == __FILE__
   }
 
   output_json = JSON.pretty_generate(hash)
-  File.write('./docs/output.json', output_json)
+  File.write('./docs/data.json', output_json)
   # pp data
 end

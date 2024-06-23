@@ -36,6 +36,8 @@ def round_robin_to_hash( body )
       if players != nil && stats_list != nil
         players.zip(stats_list).each{|player_info,stats_info|
           player_name, rank = player_info.scan(/^(.+?)\s*\((\d)位\)/).flatten
+          next unless player_name
+          player_name = player_name.sub(/\s+/," ")
           wl, leg_point, stats = stats_info.split("/")
           win, lose = wl.split("-")
           rnum, machine = current_stage.split(",")

@@ -29,6 +29,7 @@ def tournament_result_to_hash( body )
         hash[current_stage][current_player].push( element.text.strip )
       else
         current_player = element.text.strip
+        current_player = current_player.sub(/\s+/," ")
         hash[current_stage][current_player] = Array.new
       end
     end
