@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[Perfect] Player Results</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      color: #333;
+      padding: 0 10px;
+    }
+    h1 {
+      text-align: center;
+      color: #444;
+      margin: 20px 0;
+    }
+    .player {
+      background-color: #fff;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      max-width: 800px;
+    }
+    .player h2 {
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+      color: #555;
+    }
+    .year {
+      margin-bottom: 20px;
+    }
+    .year h3 {
+      color: #666;
+    }
+    .date {
+      margin-left: 20px;
+      margin-bottom: 10px;
+    }
+  .tournament-table {
+    width: 98%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  .tournament-table td {
+    border: 1px solid #ddd;
+    padding: 2px;
+    font-size: small;
+    text-align: left;
+    word-wrap: break-word;
+    box-sizing: border-box;
+  }
+  .tournament-table td.stage {
+    width: 30%;
+  }
+  .tournament-table td.score {
+    width: 14%;
+  }
+  .tournament-table td.robin {
+    width: 70%;
+  }
+  .tournament-table td[colspan="6"] {
+    background-color: #f9f9f9;
+    font-weight: bold;
+  }
+  </style>
+</head>
+<body>
+  <h1>[Perfect] Player Results</h1>
+  <div id="results"></div>
+
+  <script>
+    fetch('output.json')
+      .then(response => response.json())
+      .then(data => {
+        const resultsDiv = document.getElementById('results');
+
+        Object.keys(data).forEach(player => {
+          const playerDiv = document.createElement('div');
+          playerDiv.className = 'player';
+          const playerName = document.createElement('h2');
+          playerName.textContent = `【${player}】`;
+          playerDiv.appendChild(playerName);
+
+          Object.keys(data[player]).sort((a, b) => b - a).forEach(year => {
+            const yearDiv = document.createElement('div');
+            yearDiv.className = 'year';
+            const yearHeader = document.createElement('h3');
+            yearHeader.textContent = year;
+            yearDiv.appendChild(yearHeader);
+
+            Object.keys(data[player][year]).sort((a, b) => b - a).forEach(date => {
+              const dateDiv = document.createElement('div');
+              dateDiv.className = 'date';
+              const dateInfo = data[player][year][date];
+              const formattedDate = `${date.slice(0, 4)}/${date.slice(4, 6)}/${date.slice(6, 8)}`;
+
+              const table = document.createElement('table');
+              table.className = 'tournament-table';
+
+              const dateRow = document.createElement('tr');
+              const dateHeader = document.createElement('td');
+              dateHeader.colSpan = 6;
+              dateHeader.textContent = `${formattedDate} : ${dateInfo.num} ${dateInfo.place}`;
+              dateRow.appendChild(dateHeader);
+              table.appendChild(dateRow);
+
+              const rrRow = document.createElement('tr');
+              const rrStage = document.createElement('td');
+              const rrCell = document.createElement('td');
+              rrStage.textContent = `Round Robin`;
+              rrCell.colSpan = 5;
+              rrCell.textContent = `${dateInfo.round_robin.rank} 位 (${dateInfo.round_robin.win} 勝 ${dateInfo.round_robin.lose} 敗 : ${dateInfo.round_robin.leg_point} : ${dateInfo.round_robin.stats})`;
+              rrCell.className = 'robin';
+              rrRow.appendChild(rrStage);
+              rrRow.appendChild(rrCell);
+              table.appendChild(rrRow);
+
+              if (Object.keys(dateInfo.tournament).length > 0) {
+                Object.keys(dateInfo.tournament).forEach(stage => {
+                  const row = document.createElement('tr');
+                  const stageCell = document.createElement('td');
+                  stageCell.className = 'stage';
+                  stageCell.textContent = stage;
+                  row.appendChild(stageCell);
+
+                  dateInfo.tournament[stage].forEach(score => {
+                    const scoreCell = document.createElement('td');
+                    scoreCell.className = 'score';
+                    scoreCell.textContent = score;
+                    row.appendChild(scoreCell);
+                  });
+
+                  table.appendChild(row);
+                });
+              }
+              dateDiv.appendChild(table);
+              yearDiv.appendChild(dateDiv);
+            });
+
+            playerDiv.appendChild(yearDiv);
+          });
+
+          resultsDiv.appendChild(playerDiv);
+        });
+      })
+      .catch(error => console.error('Error loading JSON:', error));
+  </script>
+</body>
+</html>
