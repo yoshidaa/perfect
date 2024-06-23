@@ -1,4 +1,4 @@
-# SOFT DARTS PRO TOURNAMENT "PERFECT" 成績スクレイピングツール
+# SOFT DARTS PRO TOURNAMENT PERFECT 成績スクレイピングツール
 
 SOFT DARTS PRO TOURNAMENT "PERFECT" の成績をスクレイピングし、HTML形式で表示するツールです。
 
@@ -6,11 +6,11 @@ SOFT DARTS PRO TOURNAMENT "PERFECT" の成績をスクレイピングし、HTML�
 
 詳細な成績データの表示例については、以下のサイトを参考にしてください。
 
-[Perfect DARTS 成績表示サイト](https://yoshidaa.github.io/perfect)
+https://yoshidaa.github.io/perfect
 
 ## 機能
 
-- Perfect DARTS の成績データをスクレイピング
+- PERFECT の成績データをスクレイピング
     - 2016 年度以降が対象
 - 取得したデータをHTML形式で整形・表示
 
