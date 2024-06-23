@@ -121,20 +121,54 @@
 
               if (Object.keys(dateInfo.tournament).length > 0) {
                 Object.keys(dateInfo.tournament).forEach(stage => {
-                  const row = document.createElement('tr');
-                  const stageCell = document.createElement('td');
-                  stageCell.className = 'stage';
-                  stageCell.textContent = stage;
-                  row.appendChild(stageCell);
+                  if( dateInfo.tournament[stage].length == 5 ){
+                    const row = document.createElement('tr');
+                    const stageCell = document.createElement('td');
+                    stageCell.className = 'stage';
+                    stageCell.textContent = stage;
+                    row.appendChild(stageCell);
 
-                  dateInfo.tournament[stage].forEach(score => {
-                    const scoreCell = document.createElement('td');
-                    scoreCell.className = 'score';
-                    scoreCell.textContent = score;
-                    row.appendChild(scoreCell);
-                  });
+                    dateInfo.tournament[stage].forEach(score => {
+                      const scoreCell = document.createElement('td');
+                      scoreCell.className = 'score';
+                      scoreCell.textContent = score;
+                      row.appendChild(scoreCell);
+                    });
+                    table.appendChild(row);
+                  }else{ // 9
+                    const row = document.createElement('tr');
+                    const stageCell = document.createElement('td');
+                    stageCell.className = 'stage';
+                    stageCell.textContent = stage;
+                    stageCell.rowSpan = 3;
+                    row.appendChild(stageCell);
 
-                  table.appendChild(row);
+                    dateInfo.tournament[stage].slice(0,3).forEach(score => {
+                      const scoreCell = document.createElement('td');
+                      scoreCell.className = 'score';
+                      scoreCell.textContent = score;
+                      row.appendChild(scoreCell);
+                    });
+                    table.appendChild(row);
+
+                    const row2 = document.createElement('tr');
+                    dateInfo.tournament[stage].slice(3,6).forEach(score => {
+                      const scoreCell = document.createElement('td');
+                      scoreCell.className = 'score';
+                      scoreCell.textContent = score;
+                      row2.appendChild(scoreCell);
+                    });
+                    table.appendChild(row2);
+
+                    const row3 = document.createElement('tr');
+                    dateInfo.tournament[stage].slice(6,9).forEach(score => {
+                      const scoreCell = document.createElement('td');
+                      scoreCell.className = 'score';
+                      scoreCell.textContent = score;
+                      row3.appendChild(scoreCell);
+                    });
+                    table.appendChild(row3);
+                  }
                 });
               }
               dateDiv.appendChild(table);
