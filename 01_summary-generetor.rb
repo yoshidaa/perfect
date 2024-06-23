@@ -4,6 +4,8 @@ require "date"
 require "json"
 require_relative "./lib/misc"
 
+include Misc
+
 if $0 == __FILE__
   agent                  = Mechanize.new
   agent.user_agent       = 'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)'
@@ -20,6 +22,7 @@ if $0 == __FILE__
   years.each{|year|
     url = "https://www.prodarts.jp/?touryear=#{year}result"
     body = agent.get(url).body
+    sleep 1
     doc = Nokogiri::HTML(body)
     doc.xpath('//h4').each{|element|
       if element.name == "h4" && element.text.strip =~ /(.+戦)【(.+?)】([\d\.]+)/
@@ -32,8 +35,7 @@ if $0 == __FILE__
         end
         h["url"]   = Hash.new
         h["url"]["main"] = "https://www.prodarts.jp/result/#{h["date"]}/"
-        _body = agent.get(h["url"]["main"]).body
-        sleep 1
+        _body = Misc::refer( agent, "raw/result_top/rt#{h["date"]}.html", h["url"]["main"] )
         _doc = Nokogiri::HTML(_body)
         h["url"]["round_robin"] = _doc.xpath('//a').map{|link| link["href"] }.select{|href|
           href.include?('roundrobinview')

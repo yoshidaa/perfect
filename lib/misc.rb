@@ -16,7 +16,7 @@ module Misc
       body = agent.get(url).body
       sleep 1
       body = NKF.nkf( "-w", body )
-      STDERR << "[Fetch ] " + url + "\n"
+      STDERR << "[Fetch] " + url + "\n"
       dir  = File.dirname( filepath )
       FileUtils.mkdir_p dir if !File.exist?( dir )
       file = open( filepath, "w" )
