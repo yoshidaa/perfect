@@ -3,6 +3,7 @@ require "nokogiri"
 require "date"
 require "json"
 require "pp"
+require "yaml"
 require_relative "./lib/misc"
 require_relative "./lib/round_robin"
 require_relative "./lib/tournament_results"
@@ -34,27 +35,28 @@ if $0 == __FILE__
   }
 
   hash = Hash.new
-  members = Array.new
-  members.push( [ "男子", "知野 真澄" ] )
-  members.push( [ "女子", "大城 明香利" ] )
 
-  members.each{|sex_str, player_name|
-    sex = sex_str == "男子" ? "1" : "2"
-    data.keys.reverse.each{|year|
-      yhash = data[year]
-      yhash.keys.reverse.each{|date|
-        dhash = yhash[date]
-        next unless dhash["round_robin"][sex] && dhash["round_robin"][sex][player_name]
-        hash[player_name] ||= Hash.new
-        hash[player_name][year] ||= Hash.new
-        hash[player_name][year][date] = { "round_robin"=>dhash["round_robin"][sex][player_name],
-                                          "num"=>dhash["num"],
-                                          "place"=>dhash["place"],
-                                          "tournament"=>Hash.new }
-        dhash["tournament_result_stats"][sex].keys.reverse.each{|stage|
-          if dhash["tournament_result_stats"][sex][stage].keys.include?(player_name)
-            hash[player_name][year][date]["tournament"][stage.sub("ベスト","BEST ")] = dhash["tournament_result_stats"][sex][stage][player_name]
-          end
+  members = YAML.load_file("players.yaml")
+
+  members.each{|sex_str, players|
+    players.each{|player_name|
+      sex = sex_str == "男子" ? "1" : "2"
+      data.keys.reverse.each{|year|
+        yhash = data[year]
+        yhash.keys.reverse.each{|date|
+          dhash = yhash[date]
+          next unless dhash["round_robin"][sex] && dhash["round_robin"][sex][player_name]
+          hash[player_name] ||= Hash.new
+          hash[player_name][year] ||= Hash.new
+          hash[player_name][year][date] = { "round_robin"=>dhash["round_robin"][sex][player_name],
+                                            "num"=>dhash["num"],
+                                            "place"=>dhash["place"],
+                                            "tournament"=>Hash.new }
+          dhash["tournament_result_stats"][sex].keys.reverse.each{|stage|
+            if dhash["tournament_result_stats"][sex][stage].keys.include?(player_name)
+              hash[player_name][year][date]["tournament"][stage.sub("ベスト","BEST ")] = dhash["tournament_result_stats"][sex][stage][player_name]
+            end
+          }
         }
       }
     }

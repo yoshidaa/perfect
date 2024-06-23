@@ -33,6 +33,7 @@ if $0 == __FILE__
         h["url"]   = Hash.new
         h["url"]["main"] = "https://www.prodarts.jp/result/#{h["date"]}/"
         _body = agent.get(h["url"]["main"]).body
+        sleep 1
         _doc = Nokogiri::HTML(_body)
         h["url"]["round_robin"] = _doc.xpath('//a').map{|link| link["href"] }.select{|href|
           href.include?('roundrobinview')
