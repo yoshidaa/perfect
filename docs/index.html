@@ -121,14 +121,14 @@
 
               if (Object.keys(dateInfo.tournament).length > 0) {
                 Object.keys(dateInfo.tournament).forEach(stage => {
-                  if( dateInfo.tournament[stage].length == 5 ){
+                  if( dateInfo.tournament[stage]["stats"].length == 5 ){
                     const row = document.createElement('tr');
                     const stageCell = document.createElement('td');
                     stageCell.className = 'stage';
                     stageCell.textContent = stage;
                     row.appendChild(stageCell);
 
-                    dateInfo.tournament[stage].forEach(score => {
+                    dateInfo.tournament[stage]["stats"].forEach(score => {
                       const scoreCell = document.createElement('td');
                       scoreCell.className = 'score';
                       scoreCell.textContent = score;
@@ -143,7 +143,7 @@
                     stageCell.rowSpan = 3;
                     row.appendChild(stageCell);
 
-                    dateInfo.tournament[stage].slice(0,3).forEach(score => {
+                    dateInfo.tournament[stage]["stats"].slice(0,3).forEach(score => {
                       const scoreCell = document.createElement('td');
                       scoreCell.className = 'score';
                       scoreCell.textContent = score;
@@ -152,7 +152,7 @@
                     table.appendChild(row);
 
                     const row2 = document.createElement('tr');
-                    dateInfo.tournament[stage].slice(3,6).forEach(score => {
+                    dateInfo.tournament[stage]["stats"].slice(3,6).forEach(score => {
                       const scoreCell = document.createElement('td');
                       scoreCell.className = 'score';
                       scoreCell.textContent = score;
@@ -161,7 +161,7 @@
                     table.appendChild(row2);
 
                     const row3 = document.createElement('tr');
-                    dateInfo.tournament[stage].slice(6,9).forEach(score => {
+                    dateInfo.tournament[stage]["stats"].slice(6,9).forEach(score => {
                       const scoreCell = document.createElement('td');
                       scoreCell.className = 'score';
                       scoreCell.textContent = score;

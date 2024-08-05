@@ -26,14 +26,23 @@ def tournament_result_to_hash( body )
       hash[current_stage] = Hash.new
     elsif element.name == 'td'
       if numeric_or_dash?(element.text.strip)
-        hash[current_stage][current_player].push( element.text.strip )
+        hash[current_stage][current_player]["stats"].push( element.text.strip )
       else
         current_player = element.text.strip
         current_player = current_player.sub(/\s+/," ")
-        hash[current_stage][current_player] = Array.new
+        hash[current_stage][current_player] = { "stats"=>Array.new }
       end
     end
   end
+
+  hash.each{|stage_name,shash|
+    shash.keys.each_slice(2){|winner,loser|
+      shash[winner]["opponent"] = loser
+      shash[winner]["win"]      = true
+      shash[loser]["opponent"]  = winner
+      shash[loser]["win"]       = false
+    }
+  }
 
   hash
 end
