@@ -37,10 +37,12 @@ def tournament_result_to_hash( body )
 
   hash.each{|stage_name,shash|
     shash.keys.each_slice(2){|winner,loser|
-      shash[winner]["opponent"] = loser
-      shash[winner]["win"]      = true
-      shash[loser]["opponent"]  = winner
-      shash[loser]["win"]       = false
+      shash[winner]["opponent"]        = loser
+      shash[winner]["win"]             = true
+      shash[winner]["opponent_scores"] = shash[loser]["stats"]
+      shash[loser ]["opponent"]        = winner
+      shash[loser ]["win"]             = false
+      shash[loser ]["opponent_scores"] = shash[winner]["stats"]
     }
   }
 
