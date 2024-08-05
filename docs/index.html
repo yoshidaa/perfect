@@ -59,12 +59,19 @@
   .tournament-table td.score {
     width: 14%;
   }
+  .tournament-table td.opponent_score {
+    color: #ccc;
+    width: 14%;
+  }
   .tournament-table td.robin {
     width: 70%;
   }
   .tournament-table td[colspan="6"] {
     background-color: #f9f9f9;
     font-weight: bold;
+  }
+  span.opponent {
+    color: #ccc;
   }
   </style>
 </head>
@@ -73,115 +80,118 @@
   <div id="results"></div>
 
   <script>
-    fetch('data.json')
+    function createPlayerSection(player, data) {
+      return `
+        <div class="player">
+          <h2>【${player}】</h2>
+          ${Object.keys(data).sort((a, b) => b - a).map(year => createYearSection(year, data[year])).join('')}
+        </div>
+      `;
+    }
+
+    function createYearSection(year, yearData) {
+      return `
+        <div class="year">
+          <h3>${year}</h3>
+          ${Object.keys(yearData).sort((a, b) => b - a).map(date => createDateSection(date, yearData[date])).join('')}
+        </div>
+      `;
+    }
+
+    function createDateSection(date, dateInfo) {
+      const formattedDate = `${date.slice(0, 4)}/${date.slice(4, 6)}/${date.slice(6, 8)}`;
+      return `
+        <div class="date">
+          <table class="tournament-table">
+            ${createDateHeader(formattedDate, dateInfo)}
+            ${createTournamentSections(dateInfo.tournament)}
+            ${createRoundRobinSection(dateInfo.round_robin)}
+          </table>
+        </div>
+      `;
+    }
+
+    function createDateHeader(date, info) {
+      return `
+        <tr>
+          <td colspan="6">${date} : ${info.num} ${info.place}</td>
+        </tr>
+      `;
+    }
+
+    function createRoundRobinSection(roundRobin) {
+      return `
+        <tr>
+          <td>Round Robin</td>
+          <td colspan="5" class="robin">${roundRobin.rank} 位 (${roundRobin.win} 勝 ${roundRobin.lose} 敗 : ${roundRobin.leg_point} : ${roundRobin.stats})</td>
+        </tr>
+      `;
+    }
+
+    function createTournamentSections(tournament) {
+      return Object.keys(tournament).reverse().map(stage => {
+        const scores   = tournament[stage]["stats"];
+        const result   = tournament[stage]["win"] ? "O" : "X";
+        const opponent = tournament[stage]["opponent"];
+        const oscores  = tournament[stage]["opponent_scores"];
+        if (scores.length === 5) {
+          return createFiveScoresRow(stage, opponent, result, scores, oscores);
+        } else if (scores.length === 9) {
+          return createNineScoresRows(stage, opponent, result, scores, oscores);
+        }
+        return '';
+      }).join('');
+    }
+
+    function createFiveScoresRow(stage, opponent, result, scores, oscores) {
+      return `
+        <tr>
+          <td class="stage" rowspan=2>${stage}<br />&nbsp;<span class="opponent">vs ${opponent}</span></td>
+          ${scores.map(score => `<td class="score">${score}</td>`).join('')}
+        </tr>
+        <tr>
+          ${oscores.map(score => `<td class="opponent_score">${score}</td>`).join('')}
+        </tr>
+      `;
+    }
+
+    function createNineScoresRows(stage, opponent, result, scores, oscores) {
+      return `
+        <tr>
+          <td class="stage" rowspan="6">${stage}<br />&nbsp;<span class="opponent">vs ${opponent}</span></td>
+          <td rowspan="2">1</td>
+          ${scores.slice(0, 3).map(score => `<td class="score">${score}</td>`).join('')}
+        </tr>
+        <tr>
+          ${oscores.slice(0, 3).map(score => `<td class="score">${score}</td>`).join('')}
+        </tr>
+        <tr>
+          <td rowspan="2">2</td>
+          ${scores.slice(3, 6).map(score => `<td class="score">${score}</td>`).join('')}
+        </tr>
+        <tr>
+          ${oscores.slice(3, 6).map(score => `<td class="score">${score}</td>`).join('')}
+        </tr>
+        <tr>
+          <td rowspan="2">3</td>
+          ${scores.slice(6, 9).map(score => `<td class="score">${score}</td>`).join('')}
+        </tr>
+        <tr>
+          ${oscores.slice(6, 9).map(score => `<td class="score">${score}</td>`).join('')}
+        </tr>
+      `;
+    }
+
+    fetch(`data.json?cache-buster=${new Date().getTime()}`)
       .then(response => response.json())
       .then(data => {
         const resultsDiv = document.getElementById('results');
-
-        Object.keys(data).forEach(player => {
-          const playerDiv = document.createElement('div');
-          playerDiv.className = 'player';
-          const playerName = document.createElement('h2');
-          playerName.textContent = `【${player}】`;
-          playerDiv.appendChild(playerName);
-
-          Object.keys(data[player]).sort((a, b) => b - a).forEach(year => {
-            const yearDiv = document.createElement('div');
-            yearDiv.className = 'year';
-            const yearHeader = document.createElement('h3');
-            yearHeader.textContent = year;
-            yearDiv.appendChild(yearHeader);
-
-            Object.keys(data[player][year]).sort((a, b) => b - a).forEach(date => {
-              const dateDiv = document.createElement('div');
-              dateDiv.className = 'date';
-              const dateInfo = data[player][year][date];
-              const formattedDate = `${date.slice(0, 4)}/${date.slice(4, 6)}/${date.slice(6, 8)}`;
-
-              const table = document.createElement('table');
-              table.className = 'tournament-table';
-
-              const dateRow = document.createElement('tr');
-              const dateHeader = document.createElement('td');
-              dateHeader.colSpan = 6;
-              dateHeader.textContent = `${formattedDate} : ${dateInfo.num} ${dateInfo.place}`;
-              dateRow.appendChild(dateHeader);
-              table.appendChild(dateRow);
-
-              const rrRow = document.createElement('tr');
-              const rrStage = document.createElement('td');
-              const rrCell = document.createElement('td');
-              rrStage.textContent = `Round Robin`;
-              rrCell.colSpan = 5;
-              rrCell.textContent = `${dateInfo.round_robin.rank} 位 (${dateInfo.round_robin.win} 勝 ${dateInfo.round_robin.lose} 敗 : ${dateInfo.round_robin.leg_point} : ${dateInfo.round_robin.stats})`;
-              rrCell.className = 'robin';
-              rrRow.appendChild(rrStage);
-              rrRow.appendChild(rrCell);
-              table.appendChild(rrRow);
-
-              if (Object.keys(dateInfo.tournament).length > 0) {
-                Object.keys(dateInfo.tournament).forEach(stage => {
-                  if( dateInfo.tournament[stage]["stats"].length == 5 ){
-                    const row = document.createElement('tr');
-                    const stageCell = document.createElement('td');
-                    stageCell.className = 'stage';
-                    stageCell.textContent = stage;
-                    row.appendChild(stageCell);
-
-                    dateInfo.tournament[stage]["stats"].forEach(score => {
-                      const scoreCell = document.createElement('td');
-                      scoreCell.className = 'score';
-                      scoreCell.textContent = score;
-                      row.appendChild(scoreCell);
-                    });
-                    table.appendChild(row);
-                  }else{ // 9
-                    const row = document.createElement('tr');
-                    const stageCell = document.createElement('td');
-                    stageCell.className = 'stage';
-                    stageCell.textContent = stage;
-                    stageCell.rowSpan = 3;
-                    row.appendChild(stageCell);
-
-                    dateInfo.tournament[stage]["stats"].slice(0,3).forEach(score => {
-                      const scoreCell = document.createElement('td');
-                      scoreCell.className = 'score';
-                      scoreCell.textContent = score;
-                      row.appendChild(scoreCell);
-                    });
-                    table.appendChild(row);
-
-                    const row2 = document.createElement('tr');
-                    dateInfo.tournament[stage]["stats"].slice(3,6).forEach(score => {
-                      const scoreCell = document.createElement('td');
-                      scoreCell.className = 'score';
-                      scoreCell.textContent = score;
-                      row2.appendChild(scoreCell);
-                    });
-                    table.appendChild(row2);
-
-                    const row3 = document.createElement('tr');
-                    dateInfo.tournament[stage]["stats"].slice(6,9).forEach(score => {
-                      const scoreCell = document.createElement('td');
-                      scoreCell.className = 'score';
-                      scoreCell.textContent = score;
-                      row3.appendChild(scoreCell);
-                    });
-                    table.appendChild(row3);
-                  }
-                });
-              }
-              dateDiv.appendChild(table);
-              yearDiv.appendChild(dateDiv);
-            });
-
-            playerDiv.appendChild(yearDiv);
-          });
-
-          resultsDiv.appendChild(playerDiv);
-        });
+        resultsDiv.innerHTML = Object.keys(data).map(player => createPlayerSection(player, data[player])).join('');
       })
-      .catch(error => console.error('Error loading JSON:', error));
+      .catch(error => {
+        console.error('Error loading JSON:', error);
+        document.getElementById('results').innerText = 'データの読み込み中にエラーが発生しました。';
+      });
   </script>
 </body>
 </html>
